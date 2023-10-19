@@ -1,0 +1,3 @@
+Zoltan Kunos
+Nikolaos Athanasopoulos
+https://hub.docker.com/r/nickathans/python-assignment1

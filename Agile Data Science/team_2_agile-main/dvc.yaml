@@ -1,0 +1,47 @@
+stages:
+  load_data:
+    cmd: python src/data/load_dataset.py --config=params.yaml
+    deps:
+    - src/data/load_dataset.py
+    - data/external/u.data
+    outs:
+    - data/raw/movielens.obj
+
+  split_data:
+    cmd: python src/data/split_data.py --config=params.yaml
+    deps:
+    - src/data/split_data.py
+    - data/raw/movielens.obj
+    params:
+    - raw_data_config.test_percentage
+    - raw_data_config.random_state
+    outs:
+    - data/processed/train.obj
+    - data/processed/test.obj
+
+  train_sequential_model:
+    cmd: python src/models/sequential_recommender.py --config=params.yaml
+    deps:
+    - data/external/u.data
+    - data/processed/train.obj
+    - data/processed/test.obj
+    - src/models/sequential_recommender.py
+    params:
+    - sequential_model.n_iter
+    - sequential_model.representation
+    - sequential_model.loss
+    
+  train_explicit_model:
+    cmd: python src/models/explicit_recommender.py --config=params.yaml
+    deps:
+    - data/external/u.data
+    - data/processed/train.obj
+    - data/processed/test.obj
+    - src/models/explicit_recommender.py
+    params:
+    - explicit_model.loss
+    - explicit_model.embedding_dim
+    - explicit_model.n_iter
+    - explicit_model.batch_size
+    - explicit_model.l2
+    - explicit_model.learning_rate

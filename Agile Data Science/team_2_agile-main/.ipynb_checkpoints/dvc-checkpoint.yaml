@@ -1,0 +1,32 @@
+stages:
+  load_data:
+    cmd: python Webapp/src/data/load_dataset.py --config=params.yaml
+    deps:
+    - Webapp/src/data/load_dataset.py
+    - Webapp/data/external/u.data
+    outs:
+    - Webapp/data/raw/movielens.obj
+
+  split_data:
+    cmd: python Webapp/src/data/split_data.py --config=params.yaml
+    deps:
+    - Webapp/src/data/split_data.py
+    - Webapp/data/raw/movielens.obj
+    params:
+    - raw_data_config.test_percentage
+    - raw_data_config.random_state
+    outs:
+    - Webapp/data/processed/train.obj
+    - Webapp/data/processed/test.obj
+
+  train_model:
+    cmd: python Webapp/src/models/recommender.py --config=params.yaml
+    deps:
+    - Webapp/data/external/u.data
+    - Webapp/data/processed/train.obj
+    - Webapp/data/processed/test.obj
+    - Webapp/src/models/recommender.py
+    params:
+    - sequential_model.n_iter
+    - sequential_model.representation
+    - sequential_model.loss

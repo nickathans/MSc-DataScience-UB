@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  mongodb:
+    image: 'mongo'
+    hostname: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=USweather
+      - MONGO_INITDB_ROOT_USERNAME=dbUser
+      - MONGO_INITDB_ROOT_PASSWORD=assignment1
+    volumes:
+      - ./USweather-volume:/data/db
+    ports:
+      - '27017:27017'
+  
+  tweet-collector:
+    build: .
+    image: nickathans/python-assignment1
+    container_name: USweather-collector
+    depends_on:
+      - mongodb
+    environment:
+      - WAIT_HOSTS=mongodb:27017
+      - WAIT_HOSTS_TIMEOUT=250
+      - WAIT_SLEEP_INTERVAL=25
+      - WAIT_HOST_CONNECT_TIMEOUT=25 
+    ports:
+      - '9000:9000'

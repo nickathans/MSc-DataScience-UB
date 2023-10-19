@@ -1,0 +1,111 @@
+schema: '2.0'
+stages:
+  get_dataset:
+    cmd: python Webapp/src/data/load_dataset.py --config=params.yaml
+    deps:
+    - path: Webapp/data/external/movielens.obj
+      md5: c975e5602bcec1b233a9668255a3f3a0
+      size: 1600467
+    - path: Webapp/src/data/load_dataset.py
+      md5: 34697c6177c92eb32cf0c23f9aef72cd
+      size: 992
+    outs:
+    - path: Webapp/data/raw/movielens.obj
+      md5: c975e5602bcec1b233a9668255a3f3a0
+      size: 1600467
+  split_data:
+    cmd: python src/data/split_data.py --config=params.yaml
+    deps:
+    - path: data/raw/movielens.obj
+      md5: 500f7106414d824f8bbc60eb87fa9643
+      size: 1600513
+    - path: src/data/split_data.py
+      md5: 7f323d8514abf28d1361212fca28185f
+      size: 1462
+    params:
+      params.yaml:
+        raw_data_config.random_state: 42
+        raw_data_config.test_percentage: 0.2
+    outs:
+    - path: data/processed/test.obj
+      md5: 11dc48679738a2d1a9967f0f38c6472e
+      size: 373945
+    - path: data/processed/train.obj
+      md5: f47c61e814fd1dda8bb2ccc5c0cb6bfe
+      size: 1226993
+  train_model:
+    cmd: python Webapp/src/models/recommender.py --config=params.yaml
+    deps:
+    - path: Webapp/data/external/u.data
+      md5: dc6a88b3b71592638dea41e829cfa21b
+      size: 2079173
+    - path: Webapp/data/processed/test.obj
+      md5: 2b4b7b880f227bb75c9cfe97bbdca57d
+      size: 106576
+    - path: Webapp/data/processed/train.obj
+      md5: 5055de5de456fee3f5a964d1a2929b16
+      size: 353372
+    - path: Webapp/src/models/recommender.py
+      md5: 8087b006d5a005e9ac986331be810ebc
+      size: 4440
+    params:
+      params.yaml:
+        sequential_model.loss: bpr
+        sequential_model.n_iter: 12
+        sequential_model.representation: cnn
+  load_data:
+    cmd: python src/data/load_dataset.py --config=params.yaml
+    deps:
+    - path: data/external/u.data
+      md5: 16b75947cc1ff974b960d02fa408cfca
+      size: 2079273
+    - path: src/data/load_dataset.py
+      md5: 444e0202b428b8a5fb5afdd1f2b2ed0c
+      size: 1333
+    outs:
+    - path: data/raw/movielens.obj
+      md5: 500f7106414d824f8bbc60eb87fa9643
+      size: 1600513
+  train_explicit_model:
+    cmd: python src/models/explicit_recommender.py --config=params.yaml
+    deps:
+    - path: data/external/u.data
+      md5: 16b75947cc1ff974b960d02fa408cfca
+      size: 2079273
+    - path: data/processed/test.obj
+      md5: 11dc48679738a2d1a9967f0f38c6472e
+      size: 373945
+    - path: data/processed/train.obj
+      md5: f47c61e814fd1dda8bb2ccc5c0cb6bfe
+      size: 1226993
+    - path: src/models/explicit_recommender.py
+      md5: 45241b5eb1c05196eafbacaa17442a84
+      size: 5204
+    params:
+      params.yaml:
+        explicit_model.batch_size: 1024
+        explicit_model.embedding_dim: 128
+        explicit_model.l2: 1e-09
+        explicit_model.learning_rate: 0.001
+        explicit_model.loss: regression
+        explicit_model.n_iter: 10
+  train_sequential_model:
+    cmd: python src/models/sequential_recommender.py --config=params.yaml
+    deps:
+    - path: data/external/u.data
+      md5: 16b75947cc1ff974b960d02fa408cfca
+      size: 2079273
+    - path: data/processed/test.obj
+      md5: 11dc48679738a2d1a9967f0f38c6472e
+      size: 373945
+    - path: data/processed/train.obj
+      md5: f47c61e814fd1dda8bb2ccc5c0cb6bfe
+      size: 1226993
+    - path: src/models/sequential_recommender.py
+      md5: 2989e0afee62fe31e123d8f0e4c51c05
+      size: 4616
+    params:
+      params.yaml:
+        sequential_model.loss: bpr
+        sequential_model.n_iter: 12
+        sequential_model.representation: cnn

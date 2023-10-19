@@ -1,0 +1,33 @@
+external_data: Webapp/data/external/u.data
+   
+raw_data_config: 
+  raw_path: Webapp/data/raw/movielens.obj
+  test_percentage: 0.2
+  random_state: 42
+  
+processed_data_config:
+  train_data: Webapp/data/processed/train.obj
+  test_data:  Webapp/data/processed/test.obj
+ 
+mlflow_config:
+  experiment_sequential: Sequential_Model
+  experiment_explicit: Explicit_Model
+  run_name: First_iter
+  remote_server_uri: http://localhost:1234
+ 
+sequential_model: 
+  n_iter: 12
+  representation: cnn
+  loss: bpr
+
+explicit_model:
+  loss: regression
+  embedding_dim: 128
+  n_iter: 10
+  batch_size: 1024
+  l2: 0.000000001
+  learning_rate: 0.001
+
+models_dir: 
+  sequential: Webapp/models/sequential_model.pkl
+  explicit: Webapp/models/explicit_model.pkl
